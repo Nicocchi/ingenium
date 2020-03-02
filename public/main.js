@@ -11,6 +11,12 @@ const electron = require("electron");
 const path = require("path");
 const fs = require("fs");
 const log = require("electron-log");
+const Store = require("electron-store");
+const base64 = require("file-base64");
+
+const store = new Store();
+
+store.set("wallpapers", []);
 
 // Change logs to Electron based log
 console.log = function(message) {
@@ -96,6 +102,7 @@ function createMainWindow() {
 		}
 	});
 
+	// mainWindow.webContents.openDevTools();
 	// Hide the menu bar
 	mainWindow.setMenu(null);
 	mainWindow.allowRendererProcessReuse = false;
@@ -111,48 +118,73 @@ function createMainWindow() {
 	});
 }
 
+function setupWindows(event, result) {
+	// If we already have windows on each display,
+	// close each one
+	if (windows.length > 0) {
+		windows.forEach(window => {
+			window.close();
+		});
+	}
+
+	// Read the video html and add the contents of the video location
+	// Then save the the new html to the video file and create the windows
+	fs.readFile(`${__dirname}/video.html`, "utf-8", function(err, data) {
+		if (err) {
+			console.log(err);
+			throw err;
+		}
+
+		let storeResult = store.get("wallpapers");
+
+		if (!storeResult.includes(result)) {
+			base64.encode(result, function(err, base64String) {
+				const newPath = {
+					path: result,
+					base: base64String
+				};
+				storeResult.unshift(newPath);
+
+				// Return the filepath back to React
+				event.sender.send("Response-To", storeResult);
+				store.set("wallpapers", storeResult);
+			});
+		}
+
+		// Slice the html at the video src part and append the new html
+		const slicedData = data.slice(0, 592);
+		const html = `${slicedData}${result}" type="video/mp4"></video><!-- You can also require other files to run in this process --><script src="./renderer.js"></script></body></html>`;
+
+		// Write the new html to the file
+		fs.writeFile(`${__dirname}/video.html`, html, function(err) {
+			if (err) {
+				console.log(err);
+				throw err;
+			}
+
+			createWindows();
+		});
+	});
+}
+
 /**
  * Dialog box to load the video file
  */
 ipcMain.on("dialog-event", (event, path) => {
 	// The dialog box
 	dialog.showOpenDialog(mainWindow, options).then(result => {
-		if (result.canceled) return;
-
-		// If we already have windows on each display,
-		// close each one
-		if (windows.length > 0) {
-			windows.forEach(window => {
-				window.close();
-			});
+		if (result.canceled) {
+			event.returnValue = null;
+			return;
 		}
-
-		// Read the video html and add the contents of the video location
-		// Then save the the new html to the video file and create the windows
-		fs.readFile(`${__dirname}/video.html`, "utf-8", function(err, data) {
-			if (err) {
-				console.log(err);
-				throw err;
-			}
-
-			// Slice the html at the video src part and append the new html
-			const slicedData = data.slice(0, 592);
-			const html = `${slicedData}${result.filePaths[0]}" type="video/mp4"></video><!-- You can also require other files to run in this process --><script src="./renderer.js"></script></body></html>`;
-
-			// Write the new html to the file
-			fs.writeFile(`${__dirname}/video.html`, html, function(err) {
-				if (err) {
-					console.log(err);
-					throw err;
-				}
-
-				createWindows();
-			});
-		});
-
-		// Return the filepath back to React
-		event.returnValue = result.filePaths[0];
+		setupWindows(event, result.filePaths[0]);
 	});
+});
+
+ipcMain.on("apply-event", (event, path) => {
+	console.log(path.path);
+
+	setupWindows(event, path.path);
 });
 
 // This method will be called when Electron has finished
