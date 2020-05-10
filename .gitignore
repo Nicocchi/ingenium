@@ -105,3 +105,6 @@ dist
 
 # Package-lock json files
 package-lock.json
+
+# Build folder
+build/
