@@ -19,6 +19,7 @@ The tray icon is something I am working on next to easily open the main window. 
 To build application. This will build an AppImage into the `dist` folder.
 
 ```
+$ npm install
 $ npm run build
 ```
 
