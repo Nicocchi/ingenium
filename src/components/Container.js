@@ -225,22 +225,34 @@ function Container(props) {
             </DialogTitle>
             <DialogContent dividers>
               <Typography gutterBottom>
-                Ingenium is a free open source Linux wallpaper engine created by{" "}
-                <a href="#">Nicocchi</a>
+                Ingenium is a free open source Linux wallpaper engine created by
+                Nicocchi
               </Typography>
               <br />
               <Typography gutterBottom>
-                Icons made by{" "}
-                <a
-                  href="https://www.flaticon.com/authors/flat-icons"
-                  title="Flat Icons"
-                >
-                  Flat Icons
-                </a>{" "}
-                from{" "}
-                <a href="https://www.flaticon.com/" title="Flaticon">
-                  www.flaticon.com
-                </a>
+                Shortcut to open window: Ctrl + 7
+              </Typography>
+              <Typography gutterBottom>
+                Shortcut to quit Application: Ctrl + 8
+              </Typography>
+              <Typography gutterBottom>Features to implement:</Typography>
+              <ul>
+                <li>Shortcut keybind editor</li>
+                <li>Tray icon</li>
+                <li>Settings tab</li>
+                <li>Image and Webpage options</li>
+                <li>Desktop views (icons or no icons)</li>
+              </ul>
+              <Typography gutterBottom>Known bugs:</Typography>
+              <ul>
+                <li>
+                  JavaScript error when using Ctrl + 8 when main window is NOT
+                  open
+                </li>
+              </ul>
+              <br />
+              <Typography gutterBottom>
+                Icons made by https://www.flaticon.com/authors/flat-icons
               </Typography>
             </DialogContent>
             <DialogActions>

@@ -21,7 +21,6 @@ function MonitorDialog(props) {
    */
   async function setWallpaper(displayID) {
     try {
-      console.log("DISPLAY ID", displayID);
       const res = await window.ipcRenderer.sendSync("set_wallpaper", {
         wallpaperID: props.wallpaperID,
         displays: selectedDisplays,

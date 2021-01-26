@@ -5,6 +5,7 @@ const genThumbnail = require("simple-thumbnail");
 const electron = require("electron");
 const { app, BrowserWindow, ipcMain } = require("electron");
 const { checkDirectoriesExist, getFile, writeFile } = require("./utils/utils");
+const storage = require("electron-storage");
 
 const _HOME_ = require("os").homedir();
 const _SEP_ = require("path").sep;
@@ -88,7 +89,7 @@ function createMainWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
-    resizable: true,
+    resizable: false,
     x: x,
     y: y,
     center: true,
@@ -105,7 +106,7 @@ function createMainWindow() {
   mainWindow.setMenu(null);
   mainWindow.allowRendererProcessReuse = true;
   // Load React
-  mainWindow.openDevTools();
+  // mainWindow.openDevTools();
   mainWindow.loadURL(
     isDev
       ? "http://localhost:3000"
@@ -192,8 +193,6 @@ ipcMain.on("save_new_wallpaper", (event, newWP) => {
         wp = wp.trim();
         wallpapers = JSON.parse(wp);
 
-        console.log("WALLPAPERS", wallpapers);
-
         const newWallpaper = {
           id,
           name: newWP.name,
@@ -217,9 +216,18 @@ ipcMain.on("save_new_wallpaper", (event, newWP) => {
 });
 
 ipcMain.on("set_wallpaper", (event, args) => {
-  console.log(args);
   // const display = displays.filter((dp) => dp.id === args.displayID);
   createWindows(args.wallpaperID, args.displays);
+
+  storage.set(
+    "currentWallpaper",
+    { id: args.wallpaperID, displays: args.displays },
+    (err) => {
+      if (err) {
+        console.error(err);
+      }
+    }
+  );
 
   return (event.returnValue = "SUCCESS");
 });
@@ -281,9 +289,22 @@ app.on("ready", () => {
   const { globalShortcut } = require("electron");
   // Gather the screen information
   displays = electron.screen.getAllDisplays();
+  let startup = false;
 
-  // Create the main window
-  createMainWindow();
+  storage
+    .get("currentWallpaper")
+    .then((data) => {
+      createWindows(data.id, data.displays);
+      startup = true;
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+
+  if (!startup) {
+    // Create the main window
+    // createMainWindow();
+  }
 
   // Register a 'CommandOrControl+X' shortcut listener
   const ret = globalShortcut.register("CommandOrControl+7", () => {
