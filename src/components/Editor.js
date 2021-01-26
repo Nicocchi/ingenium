@@ -21,7 +21,7 @@ import CloseIcon from "@material-ui/icons/Close";
 function Editor(props) {
   const [filePath, setFilePath] = useState("");
   const [name, setName] = useState("");
-  const [type, setType] = useState("image");
+  const [type, setType] = useState("video");
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -130,9 +130,7 @@ function Editor(props) {
                 value={type}
                 onChange={handleType}
               >
-                <MenuItem value={"image"}>Image</MenuItem>
                 <MenuItem value={"video"}>Video</MenuItem>
-                <MenuItem value={"webpage"}>Webpage</MenuItem>
               </Select>
             </div>
             <div>
