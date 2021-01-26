@@ -1,79 +1,88 @@
-import React, { Component } from "react";
-import "./App.css";
-import Container from "./Container";
+import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
+import { Editor, Container, MonitorDialog } from "./components";
 
-class App extends Component {
-	constructor() {
-		super();
-		this.state = {
-			images: []
-		};
+function App(props) {
+  const [editorOpen, setEditorOpen] = useState(false);
+  const [wallpapers, setWallpapers] = useState([]);
+  const [displays, setDisplays] = useState([]);
+  const [displayOpen, setDisplayOpen] = useState(false);
+  const [wallpaperID, setWallpaperID] = useState("");
 
-		this.getSavedWallpapers = this.getSavedWallpapers.bind(this);
-		this.openWallpaper = this.openWallpaper.bind(this);
-		this.handleStop = this.handleStop.bind(this);
-		this.handleApply = this.handleApply.bind(this);
-	}
+  useEffect(() => {
+    getSavedWallpapers();
+    getDisplays();
+    return () => {
+      // Cleanup
+    };
+  }, []);
 
-	componentDidMount() {
-		this.getSavedWallpapers();
-	}
+  async function getSavedWallpapers() {
+    try {
+      const res = await window.ipcRenderer.sendSync("get_wallpapers");
+      setWallpapers(res);
+    } catch (error) {
+      console.log("error", error);
+    }
+  }
 
-	/**
-	 * Retrieve the saved wallpapers from electron's main process
-	 *
-	 * @memberof App
-	 */
-	async getSavedWallpapers() {
-		try {
-			const res = await window.ipcRenderer.sendSync("initial-reqest");
-			this.setState({ images: res });
-		} catch (error) {
-			console.log("error", error)
-		}
-	}
+  async function removeWallpaper(id) {
+    try {
+      const res = await window.ipcRenderer.sendSync("remove_wallpapers", {
+        ID: id,
+      });
+      setWallpapers(res);
+    } catch (error) {
+      console.log("error", error);
+    }
+  }
 
-	/**
-	 * Open a specific wallpaper
-	 *
-	 * @param {*} e Event
-	 * @memberof App
-	 */
-	async openWallpaper(e) {
-		e.preventDefault();
-		try {
-			const res = await window.ipcRenderer.sendSync("dialog-event");
+  async function getDisplays() {
+    try {
+      const res = await window.ipcRenderer.sendSync("get_displays");
+      setDisplays(res);
+    } catch (error) {
+      console.log("error", error);
+    }
+  }
 
-			if (res !== null) {
-				this.setState({ images: res });
-			}
-		} catch (error) {
-			console.log("error", error)
-		}
-	}
+  const toggleEditor = () => {
+    setEditorOpen(!editorOpen);
+  };
 
-	/**
-	 * Removes the wallpapers
-	 *
-	 * @memberof App
-	 */
-	handleStop= e => {
-		e.preventDefault();
-		window.ipcRenderer.send("stop-event");
-	};
+  const toggleDisplays = () => {
+    setDisplayOpen(!displayOpen);
+  };
 
-	/**
-	 * Applies the currently selected wallpaper
-	 *
-	 * @memberof App
-	 */
-	handleApply = (e, filePath) => {
-		window.ipcRenderer.send("apply-event", filePath);
-	};
+  const openDisplays = (id) => {
+    setWallpaperID(id);
+    setDisplayOpen(true);
+  };
 
-	render() {
-		return <Container handleStop={this.handleStop} handleApply={this.handleApply} getSavedWallpapers={this.getSavedWallpapers} handleClick={this.openWallpaper} images={this.state.images} />;
-	}
+  return (
+    <div>
+      <Editor
+        open={editorOpen}
+        toggleEditor={toggleEditor}
+        getSavedWallpapers={getSavedWallpapers}
+      />
+      <Container
+        getSavedWallpapers={getSavedWallpapers}
+        toggleEditor={toggleEditor}
+        wallpapers={wallpapers}
+        setWallpaper={openDisplays}
+        removeWallpaper={removeWallpaper}
+      />
+      <MonitorDialog
+        displays={displays}
+        displayOpen={displayOpen}
+        wallpaperID={wallpaperID}
+        toggleDisplays={toggleDisplays}
+      />
+    </div>
+  );
 }
+
+App.propTypes = {};
 
 export default App;

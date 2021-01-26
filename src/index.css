@@ -1,15 +1,36 @@
 body {
-	margin: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
-		"Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
-		"Helvetica Neue", sans-serif;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	background-color: #2e1534;
-	color: #fff;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #2e1534;
+  color: #fff;
 }
 
 code {
-	font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-		monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+    monospace;
+}
+
+.Dialog {
+  background-color: #2e1534;
+  color: #c3c3c3;
+}
+
+.Monitor-Dialog {
+  text-align: center;
+}
+
+.Monitor-Dialog-Icon {
+  cursor: pointer;
+}
+.Monitor-Dialog-Icon:hover {
+  color: #8a3f9c !important;
+}
+
+.MuiInputBase-input,
+MuiInput-input {
+  color: #c3c3c3 !important;
 }
